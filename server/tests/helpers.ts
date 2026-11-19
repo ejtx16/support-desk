@@ -35,7 +35,12 @@ export const bearer = (token: string) => ({ Authorization: `Bearer ${token}` });
 
 export async function createTicketVia(
   token: string,
-  overrides: Partial<{ title: string; description: string; category: string; priority: string }> = {},
+  overrides: Partial<{
+    title: string;
+    description: string;
+    category: string;
+    priority: string;
+  }> = {},
 ) {
   const res = await api()
     .post('/api/tickets')

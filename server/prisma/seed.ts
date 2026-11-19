@@ -57,13 +57,21 @@ const TICKETS: SeedTicket[] = [
     assignee: 'agent',
     hoursAgo: 6,
     comments: [
-      { author: 'agent', body: 'Thanks for reporting this. I am checking with our payment provider now.' },
-      { author: 'agent', body: 'Looks like a gateway retry. Refund #2 pending approval.', isInternal: true },
+      {
+        author: 'agent',
+        body: 'Thanks for reporting this. I am checking with our payment provider now.',
+      },
+      {
+        author: 'agent',
+        body: 'Looks like a gateway retry. Refund #2 pending approval.',
+        isInternal: true,
+      },
     ],
   },
   {
     title: 'Export to CSV times out on large reports',
-    description: 'Exporting the yearly report (about 40k rows) spins for minutes then fails with a 504.',
+    description:
+      'Exporting the yearly report (about 40k rows) spins for minutes then fails with a 504.',
     category: 'TECHNICAL',
     priority: 'MEDIUM',
     status: 'PENDING',
@@ -71,7 +79,10 @@ const TICKETS: SeedTicket[] = [
     assignee: 'agent2',
     hoursAgo: 52,
     comments: [
-      { author: 'agent2', body: 'Could you tell us which browser and the approximate report date range?' },
+      {
+        author: 'agent2',
+        body: 'Could you tell us which browser and the approximate report date range?',
+      },
     ],
   },
   {
@@ -84,13 +95,17 @@ const TICKETS: SeedTicket[] = [
     assignee: 'agent',
     hoursAgo: 80,
     comments: [
-      { author: 'agent', body: 'Go to Settings -> Members -> Invite. Only workspace owners can see it.' },
+      {
+        author: 'agent',
+        body: 'Go to Settings -> Members -> Invite. Only workspace owners can see it.',
+      },
       { author: 'customer2', body: 'Found it, thank you!' },
     ],
   },
   {
     title: 'Dark mode makes table headers unreadable',
-    description: 'With dark mode enabled the column headers on the dashboard are black on dark grey.',
+    description:
+      'With dark mode enabled the column headers on the dashboard are black on dark grey.',
     category: 'TECHNICAL',
     priority: 'LOW',
     status: 'OPEN',
@@ -106,7 +121,9 @@ const TICKETS: SeedTicket[] = [
     requester: 'customer',
     assignee: 'agent2',
     hoursAgo: 200,
-    comments: [{ author: 'agent2', body: 'Address updated. Future receipts will use the new one.' }],
+    comments: [
+      { author: 'agent2', body: 'Address updated. Future receipts will use the new one.' },
+    ],
   },
   {
     title: 'API returns 500 when filtering by date',
@@ -119,7 +136,8 @@ const TICKETS: SeedTicket[] = [
   },
   {
     title: 'Two-factor codes arrive late',
-    description: 'SMS codes for 2FA take 3-5 minutes to arrive and often expire before I can use them.',
+    description:
+      'SMS codes for 2FA take 3-5 minutes to arrive and often expire before I can use them.',
     category: 'ACCOUNT',
     priority: 'HIGH',
     status: 'IN_PROGRESS',
@@ -138,7 +156,8 @@ const TICKETS: SeedTicket[] = [
   },
   {
     title: 'Notifications email going to spam',
-    description: 'All notification emails land in our spam folder. Is there an SPF/DKIM record we need?',
+    description:
+      'All notification emails land in our spam folder. Is there an SPF/DKIM record we need?',
     category: 'TECHNICAL',
     priority: 'MEDIUM',
     status: 'OPEN',
@@ -155,12 +174,16 @@ const TICKETS: SeedTicket[] = [
     assignee: 'agent',
     hoursAgo: 60,
     comments: [
-      { author: 'agent', body: 'Please confirm the email address of the account you want deleted.' },
+      {
+        author: 'agent',
+        body: 'Please confirm the email address of the account you want deleted.',
+      },
     ],
   },
   {
     title: 'Mobile app crashes on startup (Android 15)',
-    description: 'After the latest update the Android app closes immediately after the splash screen.',
+    description:
+      'After the latest update the Android app closes immediately after the splash screen.',
     category: 'TECHNICAL',
     priority: 'HIGH',
     status: 'OPEN',
@@ -176,7 +199,9 @@ const TICKETS: SeedTicket[] = [
     requester: 'customer',
     assignee: 'agent',
     hoursAgo: 40,
-    comments: [{ author: 'agent', body: 'Fixed: the code only applied to annual plans. Credit added.' }],
+    comments: [
+      { author: 'agent', body: 'Fixed: the code only applied to annual plans. Credit added.' },
+    ],
   },
   {
     title: 'Feature question: custom fields on tickets',
@@ -235,12 +260,20 @@ async function main() {
       },
     });
 
-    const events: { type: string; actorId: string; fromValue: string | null; toValue: string | null }[] = [
-      { type: 'CREATED', actorId: requesterId, fromValue: null, toValue: 'OPEN' },
-    ];
+    const events: {
+      type: string;
+      actorId: string;
+      fromValue: string | null;
+      toValue: string | null;
+    }[] = [{ type: 'CREATED', actorId: requesterId, fromValue: null, toValue: 'OPEN' }];
     if (t.assignee) {
       const assignee = USERS.find((u) => u.key === t.assignee)!;
-      events.push({ type: 'ASSIGNED', actorId: ids[t.assignee], fromValue: null, toValue: assignee.name });
+      events.push({
+        type: 'ASSIGNED',
+        actorId: ids[t.assignee],
+        fromValue: null,
+        toValue: assignee.name,
+      });
     }
     if (t.status !== 'OPEN') {
       events.push({

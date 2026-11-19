@@ -219,7 +219,8 @@ export const ticketsService = {
   async claim(id: string, actor: Actor) {
     if (!isStaff(actor.role)) throw AppError.forbidden('Only agents can claim tickets');
     const ticket = await findTicketOrThrow(id);
-    if (ticket.status === 'CLOSED') throw AppError.unprocessable('Closed tickets cannot be claimed');
+    if (ticket.status === 'CLOSED')
+      throw AppError.unprocessable('Closed tickets cannot be claimed');
 
     return ticketsService.update(
       id,

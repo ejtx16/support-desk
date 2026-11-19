@@ -20,7 +20,11 @@ export const statsService = {
 
     const [byStatusRows, byPriorityRows, unassigned, overdue, assignedToMe, resolvedToday] =
       await prisma.$transaction([
-        prisma.ticket.groupBy({ by: ['status'], _count: { _all: true }, orderBy: { status: 'asc' } }),
+        prisma.ticket.groupBy({
+          by: ['status'],
+          _count: { _all: true },
+          orderBy: { status: 'asc' },
+        }),
         prisma.ticket.groupBy({
           by: ['priority'],
           where: active,

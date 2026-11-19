@@ -30,7 +30,10 @@ function toErrorResponse(err: unknown): { status: number; body: ErrorBody } {
 
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === 'P2002') {
-      return { status: 409, body: { error: { code: 'CONFLICT', message: 'Resource already exists' } } };
+      return {
+        status: 409,
+        body: { error: { code: 'CONFLICT', message: 'Resource already exists' } },
+      };
     }
     if (err.code === 'P2025') {
       return { status: 404, body: { error: { code: 'NOT_FOUND', message: 'Resource not found' } } };
@@ -39,7 +42,10 @@ function toErrorResponse(err: unknown): { status: number; body: ErrorBody } {
 
   // Malformed JSON body from express.json()
   if (err instanceof SyntaxError && 'body' in err) {
-    return { status: 400, body: { error: { code: 'BAD_REQUEST', message: 'Malformed JSON body' } } };
+    return {
+      status: 400,
+      body: { error: { code: 'BAD_REQUEST', message: 'Malformed JSON body' } },
+    };
   }
 
   return {

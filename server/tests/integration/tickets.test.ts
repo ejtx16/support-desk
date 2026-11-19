@@ -66,7 +66,10 @@ describe('listing tickets', () => {
     const { customer, agent } = await setup();
     await createTicketVia(customer.token, { title: 'Billing is wrong', priority: 'LOW' });
     await createTicketVia(customer.token, { title: 'Server is down', priority: 'URGENT' });
-    const third = await createTicketVia(customer.token, { title: 'Password help', priority: 'MEDIUM' });
+    const third = await createTicketVia(customer.token, {
+      title: 'Password help',
+      priority: 'MEDIUM',
+    });
     await api().post(`/api/tickets/${third.id}/assign`).set(bearer(agent.token));
 
     const search = await api().get('/api/tickets?q=server').set(bearer(agent.token));
@@ -93,7 +96,10 @@ describe('listing tickets', () => {
   it('filters overdue tickets', async () => {
     const { customer, agent } = await setup();
     const t = await createTicketVia(customer.token);
-    await prisma.ticket.update({ where: { id: t.id }, data: { dueAt: new Date(Date.now() - 1000) } });
+    await prisma.ticket.update({
+      where: { id: t.id },
+      data: { dueAt: new Date(Date.now() - 1000) },
+    });
     await createTicketVia(customer.token);
 
     const res = await api().get('/api/tickets?overdue=true').set(bearer(agent.token));
@@ -161,8 +167,8 @@ describe('agent triage workflow', () => {
     expect(resolved.body.data.status).toBe('RESOLVED');
     expect(resolved.body.data.resolvedAt).not.toBeNull();
 
-    const types = resolved.body.data.events.map((e: { type: string; toValue: string }) =>
-      `${e.type}:${e.toValue}`,
+    const types = resolved.body.data.events.map(
+      (e: { type: string; toValue: string }) => `${e.type}:${e.toValue}`,
     );
     expect(types).toEqual([
       'CREATED:OPEN',
@@ -264,7 +270,10 @@ describe('customer permissions', () => {
   it('cannot comment on closed tickets', async () => {
     const { customer } = await setup();
     const t = await createTicketVia(customer.token);
-    await api().patch(`/api/tickets/${t.id}`).set(bearer(customer.token)).send({ status: 'CLOSED' });
+    await api()
+      .patch(`/api/tickets/${t.id}`)
+      .set(bearer(customer.token))
+      .send({ status: 'CLOSED' });
     const res = await api()
       .post(`/api/tickets/${t.id}/comments`)
       .set(bearer(customer.token))
