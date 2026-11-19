@@ -1,0 +1,23 @@
+# Runs the QueueDesk API (the website is hosted on GitHub Pages):  docker compose up -d --build
+# API: http://localhost:4000/api  (health check: /api/health)
+# Database: SQLite file in the `queuedesk-data` volume, migrated and seeded on start.
+# Reset demo data:  docker compose down -v && docker compose up -d --build
+services:
+  api:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    image: queuedesk-api
+    container_name: queuedesk-api
+    ports:
+      - '${API_PORT:-4000}:4000'
+    environment:
+      CORS_ORIGIN: '${CORS_ORIGIN:-*}'
+      JWT_SECRET: '${JWT_SECRET:-queuedesk-docker-secret-change-me}'
+      JWT_EXPIRES_IN: '${JWT_EXPIRES_IN:-8h}'
+    volumes:
+      - queuedesk-data:/data
+    restart: unless-stopped
+
+volumes:
+  queuedesk-data:

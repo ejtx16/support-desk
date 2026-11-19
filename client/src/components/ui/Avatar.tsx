@@ -15,9 +15,15 @@ function colorFor(name: string) {
   return palette[hash % palette.length];
 }
 
+const sizes = {
+  sm: 'h-6 w-6 text-[10px]',
+  md: 'h-8 w-8 text-xs',
+  lg: 'h-16 w-16 text-xl',
+};
+
 interface AvatarProps {
   name: string;
-  size?: 'sm' | 'md';
+  size?: 'sm' | 'md' | 'lg';
   className?: string;
 }
 
@@ -28,7 +34,7 @@ export function Avatar({ name, size = 'md', className }: AvatarProps) {
       title={name}
       className={cn(
         'inline-flex shrink-0 items-center justify-center rounded-full font-semibold',
-        size === 'sm' ? 'h-6 w-6 text-[10px]' : 'h-8 w-8 text-xs',
+        sizes[size],
         colorFor(name),
         className,
       )}

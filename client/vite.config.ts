@@ -4,6 +4,8 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  // Sub-path for static hosting, e.g. VITE_BASE=/queuedesk/ for GitHub Pages project sites.
+  base: process.env.VITE_BASE || '/',
   plugins: [react()],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },

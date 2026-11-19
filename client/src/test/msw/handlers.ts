@@ -58,4 +58,7 @@ export const handlers = [
       },
     }),
   ),
+
+  // Empty inbox by default; notification tests override this.
+  http.get('*/api/notifications', () => HttpResponse.json({ data: [], meta: { unreadCount: 0 } })),
 ];

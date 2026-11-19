@@ -12,6 +12,7 @@ export const TEST_PASSWORD = 'Password123!';
 
 /** Wipes all tables (children first to respect FKs). */
 export async function resetDb() {
+  await prisma.notification.deleteMany();
   await prisma.ticketEvent.deleteMany();
   await prisma.comment.deleteMany();
   await prisma.ticket.deleteMany();

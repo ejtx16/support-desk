@@ -1,12 +1,12 @@
 export { Avatar } from './Avatar';
 export { Badge, type BadgeTone } from './Badge';
-export { Button, ButtonLink, type ButtonProps } from './Button';
+export { Button, ButtonLink } from './Button';
 export { Card, CardBody, CardHeader } from './Card';
 export { DataTable, type Column } from './DataTable';
 export { EmptyState, ErrorState } from './EmptyState';
 export { FormField } from './FormField';
 export { Input, Textarea } from './Input';
-export { ConfirmDialog, Modal } from './Modal';
+export { ConfirmDialog } from './Modal';
 export { Pagination } from './Pagination';
-export { Select, type SelectOption } from './Select';
+export { Select } from './Select';
 export { PageLoader, Spinner } from './Spinner';

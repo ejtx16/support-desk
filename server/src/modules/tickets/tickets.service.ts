@@ -16,6 +16,7 @@ import {
   isStaff,
 } from '../../domain/ticketRules';
 import { AppError } from '../../utils/AppError';
+import { notify, staffIds } from '../notifications/notifications.service';
 import {
   ticketDetailInclude,
   ticketListInclude,
@@ -37,6 +38,19 @@ export interface Actor {
 type Tx = Prisma.TransactionClient;
 
 const FIRST_TICKET_NUMBER = 1001;
+
+const STATUS_TEXT: Record<TicketStatus, string> = {
+  OPEN: 'Open',
+  IN_PROGRESS: 'In progress',
+  PENDING: 'Pending',
+  RESOLVED: 'Resolved',
+  CLOSED: 'Closed',
+};
+
+async function actorName(tx: Tx, actorId: string) {
+  const user = await tx.user.findUnique({ where: { id: actorId }, select: { name: true } });
+  return user?.name ?? 'Someone';
+}
 
 const SORT_ORDER: Record<ListTicketsQuery['sort'], Prisma.TicketOrderByWithRelationInput[]> = {
   newest: [{ createdAt: 'desc' }],
@@ -157,6 +171,13 @@ export const ticketsService = {
         },
       });
       await recordEvent(tx, created.id, actor.id, 'CREATED', null, 'OPEN');
+      await notify(tx, {
+        type: 'TICKET_CREATED',
+        ticketId: created.id,
+        actorId: actor.id,
+        message: `${await actorName(tx, actor.id)} opened #${created.number}: ${created.title}`,
+        recipientIds: await staffIds(tx),
+      });
       return created;
     });
     return loadDetail(ticket.id, actor);
@@ -172,6 +193,11 @@ export const ticketsService = {
 
       const data: Prisma.TicketUncheckedUpdateInput = {};
       const currentStatus = ticket.status as TicketStatus;
+      const name = await actorName(tx, actor.id);
+      const ref = `#${ticket.number}`;
+      // Queued and sent after the ticket row is updated; a rejected change rolls them back too.
+      const pending: Parameters<typeof notify>[1][] = [];
+      const base = { ticketId: id, actorId: actor.id };
 
       if (input.status && input.status !== currentStatus) {
         if (!canTransition(currentStatus, input.status)) {
@@ -186,6 +212,12 @@ export const ticketsService = {
           data.resolvedAt = null;
         }
         await recordEvent(tx, id, actor.id, 'STATUS_CHANGED', currentStatus, input.status);
+        pending.push({
+          ...base,
+          type: 'STATUS_CHANGED',
+          message: `${name} changed ${ref} to ${STATUS_TEXT[input.status]}`,
+          recipientIds: [ticket.requesterId, input.assigneeId ?? ticket.assigneeId],
+        });
       }
 
       if (input.priority && input.priority !== ticket.priority) {
@@ -194,6 +226,12 @@ export const ticketsService = {
         // SLA is always measured from creation time.
         data.dueAt = calculateDueAt(input.priority, ticket.createdAt);
         await recordEvent(tx, id, actor.id, 'PRIORITY_CHANGED', ticket.priority, input.priority);
+        pending.push({
+          ...base,
+          type: 'PRIORITY_CHANGED',
+          message: `${name} changed the priority of ${ref} to ${input.priority.toLowerCase()}`,
+          recipientIds: [input.assigneeId ?? ticket.assigneeId],
+        });
       }
 
       if (input.assigneeId !== undefined && input.assigneeId !== ticket.assigneeId) {
@@ -206,11 +244,26 @@ export const ticketsService = {
         }
         data.assigneeId = input.assigneeId;
         await recordEvent(tx, id, actor.id, 'ASSIGNED', from?.name ?? null, to?.name ?? null);
+        if (to) {
+          pending.push({
+            ...base,
+            type: 'TICKET_ASSIGNED',
+            message: `${name} assigned ${ref} to you: ${ticket.title}`,
+            recipientIds: [to.id],
+          });
+          pending.push({
+            ...base,
+            type: 'TICKET_ASSIGNED',
+            message: `${to.name} is now handling your ticket ${ref}`,
+            recipientIds: [ticket.requesterId],
+          });
+        }
       }
 
       if (Object.keys(data).length) {
         await tx.ticket.update({ where: { id }, data });
       }
+      for (const n of pending) await notify(tx, n);
     });
     return loadDetail(id, actor);
   },
@@ -250,6 +303,27 @@ export const ticketsService = {
       await tx.comment.create({
         data: { ticketId: id, authorId: actor.id, body: input.body, isInternal: input.isInternal },
       });
+
+      const name = await actorName(tx, actor.id);
+      const ref = `#${ticket.number}`;
+      if (input.isInternal) {
+        await notify(tx, {
+          type: 'INTERNAL_NOTE',
+          ticketId: id,
+          actorId: actor.id,
+          message: `${name} added an internal note on ${ref}`,
+          recipientIds: [ticket.assigneeId],
+        });
+      } else {
+        // Public replies reach the customer and the agent who owns the ticket.
+        await notify(tx, {
+          type: 'NEW_REPLY',
+          ticketId: id,
+          actorId: actor.id,
+          message: `${name} replied to ${ref}: ${ticket.title}`,
+          recipientIds: [ticket.requesterId, ticket.assigneeId],
+        });
+      }
 
       const reopen =
         !isStaff(actor.role) && (ticket.status === 'PENDING' || ticket.status === 'RESOLVED');
