@@ -1,4 +1,10 @@
-import type { TicketCategory, TicketPriority, TicketSort, TicketStatus } from '@/types/api';
+import type { Role, TicketCategory, TicketPriority, TicketSort, TicketStatus } from '@/types/api';
+
+export const ROLE_LABELS: Record<Role, string> = {
+  CUSTOMER: 'Customer',
+  AGENT: 'Agent',
+  ADMIN: 'Admin',
+};
 
 export const STATUS_LABELS: Record<TicketStatus, string> = {
   OPEN: 'Open',

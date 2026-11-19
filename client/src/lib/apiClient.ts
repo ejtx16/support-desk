@@ -6,10 +6,13 @@ import type { ApiErrorBody } from '@/types/api';
  * unauthorized handler at startup (see features/auth/store.ts) so this module
  * has no dependency on React or the store.
  */
-export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? '/api',
-  headers: { 'Content-Type': 'application/json' },
-});
+/**
+ * Dev and `vite preview` proxy `/api` to localhost:4000. A static deploy (GitHub Pages)
+ * sets VITE_API_URL at build time, e.g. `http://localhost:4000/api`.
+ */
+export const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+
+export const apiClient = axios.create({ baseURL: API_BASE_URL });
 
 let getToken: () => string | null = () => null;
 let onUnauthorized: () => void = () => {};

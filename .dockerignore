@@ -1,0 +1,15 @@
+# Keep the build context small and never bake local state into the image.
+**/node_modules
+**/dist
+**/coverage
+**/*.db
+**/*.db-journal
+**/.env
+**/.env.local
+.git
+.github
+.vscode
+docs
+client/src
+client/public
+*.log

@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react';
 import type { RouteObject } from 'react-router-dom';
 import { PageLoader } from '@/components/ui';
 import NotFoundPage from '@/pages/NotFoundPage';
-import { ProtectedRoute, RoleRoute, RootRedirect } from '@/routes/guards';
+import { ProtectedRoute, RoleRoute, RootRedirect } from './guards';
 import { AppLayout } from './layouts/AppLayout';
 import { AuthLayout } from './layouts/AuthLayout';
 
@@ -13,6 +13,7 @@ const DashboardPage = lazy(() => import('@/features/dashboard/pages/DashboardPag
 const TicketListPage = lazy(() => import('@/features/tickets/pages/TicketListPage'));
 const CreateTicketPage = lazy(() => import('@/features/tickets/pages/CreateTicketPage'));
 const TicketDetailPage = lazy(() => import('@/features/tickets/pages/TicketDetailPage'));
+const ProfilePage = lazy(() => import('@/features/profile/pages/ProfilePage'));
 
 /** Opt into React Router v7 behaviour now (also silences upgrade warnings). */
 export const routerFuture = {
@@ -64,6 +65,7 @@ export const routes: RouteObject[] = [
           { path: '/tickets', element: <TicketListPage /> },
           { path: '/tickets/new', element: <CreateTicketPage /> },
           { path: '/tickets/:ticketId', element: <TicketDetailPage /> },
+          { path: '/profile', element: <ProfilePage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

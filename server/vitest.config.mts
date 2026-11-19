@@ -12,10 +12,5 @@ export default defineConfig({
       DATABASE_URL: 'file:./test.db',
       JWT_SECRET: 'queuedesk-test-secret-0123456789',
     },
-    coverage: {
-      provider: 'v8',
-      include: ['src/**/*.ts'],
-      exclude: ['src/server.ts', 'src/types/**'],
-    },
   },
 });

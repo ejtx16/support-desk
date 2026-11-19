@@ -230,9 +230,13 @@ async function main() {
 
   if ((await prisma.ticket.count()) > 0) {
     console.log('[seed] tickets already exist - skipping sample tickets');
-    return;
+  } else {
+    await seedTickets(ids);
   }
+  await seedNotifications(ids);
+}
 
+async function seedTickets(ids: Record<string, string>) {
   let number = 1001;
   // Oldest first so ticket numbers grow with creation time.
   const ordered = [...TICKETS].sort((a, b) => b.hoursAgo - a.hoursAgo);
@@ -305,6 +309,57 @@ async function main() {
     }
   }
   console.log(`[seed] ${TICKETS.length} sample tickets created`);
+}
+
+/** A few unread notifications so the header bell has something to show on first login. */
+async function seedNotifications(ids: Record<string, string>) {
+  if ((await prisma.notification.count()) > 0) {
+    console.log('[seed] notifications already exist - skipping');
+    return;
+  }
+  const byTitle = async (title: string) =>
+    prisma.ticket.findFirst({ where: { title }, select: { id: true, number: true } });
+
+  const urgent = await byTitle('API returns 500 when filtering by date');
+  const billing = await byTitle('Charged twice for the November invoice');
+  const pending = await byTitle('Export to CSV times out on large reports');
+  const crash = await byTitle('Mobile app crashes on startup (Android 15)');
+  if (!urgent || !billing || !pending || !crash) return;
+
+  const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000);
+  await prisma.notification.createMany({
+    data: [
+      {
+        userId: ids.agent,
+        ticketId: crash.id,
+        type: 'TICKET_CREATED',
+        message: `Casey Customer opened #${crash.number}: Mobile app crashes on startup (Android 15)`,
+        createdAt: minutesAgo(240),
+      },
+      {
+        userId: ids.agent,
+        ticketId: urgent.id,
+        type: 'TICKET_CREATED',
+        message: `Jordan Lee opened #${urgent.number}: API returns 500 when filtering by date`,
+        createdAt: minutesAgo(540),
+      },
+      {
+        userId: ids.customer,
+        ticketId: billing.id,
+        type: 'NEW_REPLY',
+        message: `Alex Agent replied to #${billing.number}: Charged twice for the November invoice`,
+        createdAt: minutesAgo(300),
+      },
+      {
+        userId: ids.customer2,
+        ticketId: pending.id,
+        type: 'STATUS_CHANGED',
+        message: `Sam Support changed #${pending.number} to Pending`,
+        createdAt: minutesAgo(1200),
+      },
+    ],
+  });
+  console.log('[seed] demo notifications created');
 }
 
 main()

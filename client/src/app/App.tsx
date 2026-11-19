@@ -5,7 +5,9 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { createQueryClient } from './queryClient';
 import { routerFuture, routes } from './routes';
 
-const router = createBrowserRouter(routes, { future: routerFuture });
+// BASE_URL is `/` locally and `/<repo>/` on GitHub Pages (see VITE_BASE in vite.config.ts).
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || '/';
+const router = createBrowserRouter(routes, { basename, future: routerFuture });
 
 export function App() {
   const [queryClient] = useState(createQueryClient);

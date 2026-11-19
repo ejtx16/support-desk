@@ -3,10 +3,10 @@ import { Link, NavLink, Outlet } from 'react-router-dom';
 import { Avatar, Button, PageLoader } from '@/components/ui';
 import { useLogout, useSessionRefresh } from '@/features/auth/hooks/useAuth';
 import { useCurrentUser } from '@/features/auth/store';
+import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import { cn } from '@/lib/cn';
+import { ROLE_LABELS } from '@/lib/labels';
 import { Logo } from './Logo';
-
-const ROLE_LABEL = { CUSTOMER: 'Customer', AGENT: 'Agent', ADMIN: 'Admin' } as const;
 
 function NavItem({ to, children, end }: { to: string; children: React.ReactNode; end?: boolean }) {
   return (
@@ -47,13 +47,18 @@ export function AppLayout() {
             <NavItem to="/tickets/new">New ticket</NavItem>
           </nav>
           <div className="ml-auto flex items-center gap-3">
-            <div className="hidden items-center gap-2 sm:flex">
+            <NotificationBell />
+            <Link
+              to="/profile"
+              aria-label="Your profile"
+              className="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-slate-100"
+            >
               <Avatar name={user.name} size="sm" />
-              <div className="leading-tight">
+              <div className="hidden leading-tight sm:block">
                 <p className="text-sm font-medium text-slate-800">{user.name}</p>
-                <p className="text-xs text-slate-500">{ROLE_LABEL[user.role]}</p>
+                <p className="text-xs text-slate-500">{ROLE_LABELS[user.role]}</p>
               </div>
-            </div>
+            </Link>
             <Button variant="ghost" size="sm" onClick={logout}>
               Sign out
             </Button>

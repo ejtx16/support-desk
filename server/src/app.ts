@@ -12,7 +12,17 @@ export function createApp() {
   const app = express();
 
   app.use(helmet());
-  app.use(cors({ origin: env.CORS_ORIGIN.split(',').map((o) => o.trim()) }));
+  // Lets a public page (e.g. the GitHub Pages client) call an API on the tester's localhost:
+  // Chrome sends this preflight header for public -> private network requests.
+  app.use((req, res, next) => {
+    if (req.headers['access-control-request-private-network'] === 'true') {
+      res.setHeader('Access-Control-Allow-Private-Network', 'true');
+    }
+    next();
+  });
+  // Auth is a bearer token (no cookies), so `*` is acceptable for a local test server.
+  const origins = env.CORS_ORIGIN.split(',').map((o) => o.trim());
+  app.use(cors({ origin: origins.includes('*') ? true : origins }));
   app.use(express.json({ limit: '100kb' }));
   if (env.NODE_ENV !== 'test') app.use(morgan('dev'));
 

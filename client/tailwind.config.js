@@ -12,9 +12,6 @@ export default {
           700: '#4338ca',
         },
       },
-      fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
-      },
     },
   },
   plugins: [],

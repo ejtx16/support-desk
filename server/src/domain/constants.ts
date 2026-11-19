@@ -23,6 +23,16 @@ export const TICKET_EVENT_TYPES = [
 ] as const;
 export type TicketEventType = (typeof TICKET_EVENT_TYPES)[number];
 
+export const NOTIFICATION_TYPES = [
+  'TICKET_CREATED',
+  'TICKET_ASSIGNED',
+  'STATUS_CHANGED',
+  'PRIORITY_CHANGED',
+  'NEW_REPLY',
+  'INTERNAL_NOTE',
+] as const;
+export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
+
 export const TICKET_SORTS = ['newest', 'oldest', 'priority', 'dueAt'] as const;
 export type TicketSort = (typeof TICKET_SORTS)[number];
 
